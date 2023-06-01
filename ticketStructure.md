@@ -28,7 +28,8 @@
 # 1-1 Conversions:
 - Title
 - Description
-- Labels (Status can be put here)
+- Labels 
+    * Status can be put here
 - Assignees
 
 # Possibly 1-1:
