@@ -1,0 +1,35 @@
+name: JG-ETL
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - brotlipy=0.7.0=py39h2bbff1b_1003
+  - ca-certificates=2023.5.7=h56e8100_0
+  - certifi=2023.5.7=pyhd8ed1ab_0
+  - cffi=1.15.1=py39h2bbff1b_3
+  - charset-normalizer=2.0.4=pyhd3eb1b0_0
+  - cryptography=39.0.1=py39h21b164f_0
+  - gettext=0.21.1=h5728263_0
+  - idna=3.4=py39haa95532_0
+  - libiconv=1.17=h8ffe710_0
+  - openssl=1.1.1u=hcfcfb64_0
+  - pip=23.0.1=py39haa95532_0
+  - pycparser=2.21=pyhd3eb1b0_0
+  - pyopenssl=23.0.0=py39haa95532_0
+  - pysocks=1.7.1=py39haa95532_0
+  - python=3.9.16=h6244533_2
+  - python_abi=3.9=2_cp39
+  - regex=2022.7.9=py39h2bbff1b_0
+  - requests=2.29.0=py39haa95532_0
+  - setuptools=67.8.0=py39haa95532_0
+  - sqlite=3.41.2=h2bbff1b_0
+  - tzdata=2023c=h04d1e81_0
+  - ucrt=10.0.22621.0=h57928b3_0
+  - urllib3=1.26.15=py39haa95532_0
+  - vc=14.2=h21ff451_1
+  - vc14_runtime=14.34.31931=h5081d32_16
+  - vim=9.0.1425=py39h99910a6_0
+  - vs2015_runtime=14.34.31931=hed1258a_16
+  - wheel=0.38.4=py39haa95532_0
+  - win_inet_pton=1.1.0=py39haa95532_0
+prefix: C:\Users\meowm\anaconda3\envs\JG-ETL
