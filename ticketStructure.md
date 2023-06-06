@@ -14,7 +14,7 @@
 - Watchers
 - Dates (created and last modified)
 
-# GitHub Issue Features:
+# GitHub Issue Fields:
 - Title
 - Description
     * Tasklist
