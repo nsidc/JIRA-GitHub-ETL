@@ -35,7 +35,7 @@ This section will serve as a guide to set up the proper environment with the req
 4. Run the command `conda env create -f environment.yml` to create a new environment with the necessary libraries
     (Note: If you want to use the development environment, type conda env create -f environment-dev.yml` instead)
 5. Accept the creation and allow the dependencies to be installed
-6. Activate the new environment with `conda activate JG-ETL` and have fun!
+6. Activate the new environment with `conda activate JG-ETL` and have fun! 
     (Note: If you are using the development evironment use `conda activate JG-ETL-Dev` instead)
 
 **Other Conda Notes:**
