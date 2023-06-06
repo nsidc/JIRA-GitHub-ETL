@@ -1,4 +1,4 @@
-# JIRA Ticket Features:
+# JIRA Ticket Fields:
 - Title
 - Type
 - Status
