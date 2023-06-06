@@ -26,7 +26,7 @@ nsidc@nsidc.org for more information.
 * Access to GitHub repository
 * Anaconda and Conda installed locally
 
-## Installation
+## Conda Environment Setup
 This section will serve as a guide to set up the proper environment with the required libraries.
 
 1. Clone this repository into a directory of your choosing
