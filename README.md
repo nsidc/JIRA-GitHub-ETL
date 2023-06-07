@@ -33,10 +33,8 @@ This section will serve as a guide to set up the proper environment with the req
 2. Open the Anaconda Prompt (do a search on your computer for 'Anaconda Prompt' or open any terminal that can use the `conda` keyword; check using `conda --version` to see if a version pops up)
 3. Path to where you cloned the repository in the terminal of your choosing
 4. Run the command `conda env create -f environment.yml` to create a new environment with the necessary libraries
-    (Note: If you want to use the development environment, type conda env create -f environment-dev.yml` instead)
 5. Accept the creation and allow the dependencies to be installed
 6. Activate the new environment with `conda activate JG-ETL` and have fun! 
-    (Note: If you are using the development evironment use `conda activate JG-ETL-Dev` instead)
 
 **Other Conda Notes:**
 - Use `conda --version` to check the version of conda
