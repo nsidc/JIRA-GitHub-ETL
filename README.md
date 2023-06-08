@@ -39,11 +39,8 @@ This section will serve as a guide to set up the proper environment with the req
 **Other Conda Notes:**
 - Use `conda --version` to check the version of conda
 - Use `conda env list` to see your current conda environments
-- Use `conda env export > environment.yml` to update the environmnt file after changes
 - Use `conda remove -n JG-ETL --all` to remove the environment
-    * `conda remove -n JG-ETL-Dev --all` if you installed the dev version instead
-- Use `conda install <packagename>=<version>` to install packages
-    * Be sure to update the environment.yml if any packages are added
+- Use `conda env update -f environment.yml` to update the environment after any changes to the environment.yml file
 
 ## Usage
 
