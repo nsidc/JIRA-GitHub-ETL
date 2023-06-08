@@ -2,7 +2,7 @@ import bs4
 import requests
 import re
 
-with open('testJIRA.xml', 'r') as f:
+with open('../testJIRA.xml', 'r') as f:
     file = f.read()
 
 soup = bs4.BeautifulSoup(file, 'xml')

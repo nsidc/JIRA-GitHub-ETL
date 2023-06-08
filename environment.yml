@@ -1,12 +1,9 @@
 name: JG-ETL
 
 channels:
-  - anaconda
+  - conda-forge
 
 dependencies:
   - python ~= 3.9
   - requests
-
-  - pip:
-    - beautifulsoup4
-    - lxml
+  - beautifulsoup4
