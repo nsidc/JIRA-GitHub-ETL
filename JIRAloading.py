@@ -22,5 +22,18 @@ for issue in issues:
 
 print(len(titles))
 
-for title in titles[:5]:
-    print(title)
+# for title in titles[:5]:
+#     print(title)
+
+def load_titles(issues):
+    titles = list()
+    for issue in issues:
+        titles.append(issue.title)
+    return titles
+
+# Testing load_titles() with issues
+# test = load_titles(issues)
+# assert test == titles
+# print(len(test))
+for title in test[:10]:
+    print(title.text)
