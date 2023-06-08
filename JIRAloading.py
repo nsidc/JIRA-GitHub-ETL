@@ -20,11 +20,12 @@ titles = list()
 for issue in issues:
     titles.append(issue.title)
 
-print(len(titles))
+# print(len(titles))
 
 # for title in titles[:5]:
 #     print(title)
 
+# Functions for getting the list of data for each field of an issue
 def load_titles(issues):
     titles = list()
     for issue in issues:
@@ -35,5 +36,27 @@ def load_titles(issues):
 # test = load_titles(issues)
 # assert test == titles
 # print(len(test))
-for title in test[:10]:
-    print(title.text)
+# for title in test[:10]:
+#     print(title.text)
+
+# Getting the links to the original JIRA issues
+def load_original_links(issues):
+    links = list()
+    for issue in issues:
+        links.append(issue.link)
+    return links
+
+print(load_original_links(issues)[0].text)
+
+def load_description(issues):
+    descriptions = list()
+    for issue in issues:
+        descriptions.append(issue.description)
+    return descriptions
+
+# Testing load_description() 
+test = load_description(issues)
+print(len(test))
+for desc in test:
+    test_str = re.sub('(<p>)|(</p>)', '', desc.text)
+    print(test_str)
