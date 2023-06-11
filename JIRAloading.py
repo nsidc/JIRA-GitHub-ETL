@@ -32,7 +32,7 @@ def issue_links(issues):
         links.append(issue.link.text)
     return links
 
-# links = issue_links(issues)
+links = issue_links(issues)
 # print(type(links))
 # print(len(links))
 # print(links[3])
@@ -40,26 +40,38 @@ def issue_links(issues):
 # Getting the descriptions
 def issue_description(issues):
     descriptions = list()
-    print(type(issues[0].contents))
-    print(issues[2].description.contents)
+    for i, issue in enumerate(issues):
+        description = issue.find_all('description')
+        no_tags = list()
+        for desc in description:
+            for content in desc.contents:
+                # The description is all in one line, but the tags are separated by newline characters
+                split_into_tags = content.text.split('\n')
 
-    for issue in issues[1:3]:
-        description = issue.find('description')
-        print(type(description.contents))
-        print(len(description.contents))
-        print(description.contents)
-            
+                # Turn each tag into just text
+                for tag in split_into_tags:
+                    no_tag = re.sub('<[/\w\s".:-]*>', '', tag)
+                    no_tags.append(no_tag)
+
+                # Use the list of tags to make one description string
+                d = ''
+                for tag in no_tags:
+                    d += tag + '\n'
+
+        descriptions.append(d)
     return descriptions
 
-# use the .contents to loop through and print content tags inside the description
-description = issue_description(issues)
-# print(type(description))
-# print(len(description))
-# print(description[3])
+descriptions = issue_description(issues)
+print(len(descriptions))
+print(type(descriptions))
+for desc in descriptions:
+    print(desc)
 
 # Function for printing number of tags
 def print_issues(issues):
-    for issue in issues:
+    for issue in issues[:5]:
         content = issue.contents
-        print(len(content))
-print_issues(issues)
+        for con in content[:10]:
+            print(con.text)
+
+# print_issues(issues)
