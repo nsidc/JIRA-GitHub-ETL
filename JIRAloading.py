@@ -177,6 +177,7 @@ class JIRALoader:
         self.titles = None
         self.links = None
         self.descriptions = None
+        self.labels = None
 
         with open(filepath, 'r') as f:
             file = f.read()
@@ -192,6 +193,7 @@ class JIRALoader:
         titles = list()
         for item in self.issues:
             titles.append(item.title.text)
+
         self.titles = titles
         return titles
 
@@ -202,6 +204,7 @@ class JIRALoader:
         links = list()
         for issue in self.issues:
             links.append(issue.link.text)
+
         self.links = links
         return links
 
@@ -225,7 +228,7 @@ class JIRALoader:
                         tags.append(tag)
 
             descriptions.append(tags)
-
+        self.descriptions = descriptions
         return descriptions
 
 
@@ -241,7 +244,7 @@ class JIRALoader:
                 if a_search is not None:
                     a_tags.append(a_search)
             issue_a_tags.append(a_tags)
-
+        
         return issue_a_tags
 
 
@@ -258,7 +261,7 @@ class JIRALoader:
                     split_into_tags = content.text.split('\n')
 
     # ************************************ (Start)
-    # This block of code adds the proper list starter for html ordered and unordered lists
+    # This block of code adds the proper list starter for html ordered and unordered lists; needed to use regex and not beautiful soup because the tags were not written in xml format. (&lt; and &gt; are used instead of <>)
                     # 0 = no list / end of list; 1 = ordered list started; 2 = unordered list started
                     start_flag = 0
 
@@ -322,8 +325,46 @@ class JIRALoader:
         self.descriptions = descriptions
         return descriptions
 
+    # This functions returns a list of labels, where the status is the first label in every list, then the actual labels follow; the return is a list of list of strings
+    def issue_labels(self):
+        labels = list()
+        for issue in issues:
+            issue_labels = list()
+
+            # add the status to the labels list first
+            status = issue.find('status').text
+            issue_labels.append(status)
+
+            xml_labels = issue.find_all('label')
+
+            for label in xml_labels:
+                issue_labels.append(label.text)
+
+            labels.append(issue_labels)
+        
+        self.labels = labels
+        return labels
 
 
 # test = JIRALoader('../testJIRA.xml')
 # for link in test.issue_links():
     # print(link)
+
+labels = list()
+for issue in issues:
+    issue_labels = list()
+
+    # add the status to the labels list first
+    status = issue.find('status').text
+    issue_labels.append(status)
+
+    xml_labels = issue.find_all('label')
+
+    for label in xml_labels:
+        issue_labels.append(label.text)
+
+    labels.append(issue_labels)
+
+for label in labels:
+    for l in label:
+        print(l)
