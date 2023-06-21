@@ -14,13 +14,36 @@ REPO_NAME = 'pythonapis'
 # Only way of authenticating at the current moment is with GitHub PAT tokens, which are deleted from your GitHub account if it is found in a public repository
 PAT = ''
 
+def make_request(URL, data, headers):
+# ****************************************************
+# Use of try and exception handeling provided by GeeksForGeeks at https://www.geeksforgeeks.org/exception-handling-of-python-requests-module/
+    r = None
+    try:
+        r = requests.post(URL, data=json.dumps(data), headers=headers, timeout=5)
+        r.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        print("HTTP Error")
+        print(errh.args[0])
+        return None
+    except requests.exceptions.ReadTimeout as errrt:
+        print("Time out")
+        return None
+    except requests.exceptions.ConnectionError as conerr:
+        print("Connection error")
+        return None
+    except requests.exceptions.RequestException as errex:
+        print("Exception request")
+        print(errex.args[0])
+        return None
+    return r
+
+
 # This function uploads an issue's data to github at the provided repo name, owner, and PAT. (The GitHub PAT user needs to have edit access on the repository.) 
 # It will return the new issue's link and number as a tuple: (link, number). If the issue could not be created, then (None, None) is returned instead
 def upload_issue(issue, REPO_NAME, REPO_OWNER, PAT):
     URL = f'https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/issues'
     headers = {
         'Authorization': 'token ' + PAT
-        # 'accept': 'application/vnd.github+json'
     }
 
     # Issue link to be returned for easy human access
@@ -42,31 +65,15 @@ def upload_issue(issue, REPO_NAME, REPO_OWNER, PAT):
             'labels': issue[3]
         }
 
-    r = None
+    r = make_request(URL, data, headers)
 
-# ****************************************************
-# Use of try and exception handeling provided by GeeksForGeeks at https://www.geeksforgeeks.org/exception-handling-of-python-requests-module/
-    try:
-        r = requests.post(URL, data=json.dumps(data), headers=headers, timeout=5)
-        r.raise_for_status()
-    except requests.exceptions.HTTPError as errh:
-        print("HTTP Error")
-        print(errh.args[0])
-    except requests.exceptions.ReadTimeout as errrt:
-        print("Time out")
-    except requests.exceptions.ConnectionError as conerr:
-        print("Connection error")
-    except requests.exceptions.RequestException as errex:
-        print("Exception request")
-    print("Upload Success")
-# ****************************************************
-
-    if not r:
-        return (issue_link, issue_number)
+    if r is None:
+        return (None, None)
 
     if r.ok:
         issue_link = r.json()["url"]
         issue_number = r.json()["number"]
+        print(f"Successfully Created Issue {issue_number}")
 
     return (issue_link, issue_number)
 
@@ -76,7 +83,6 @@ def update_issue(issue, REPO_NAME, REPO_OWNER, PAT, ISSUE_NUMBER):
     URL = f'https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/issues/{ISSUE_NUMBER}'
     headers = {
         'Authorization': 'token ' + PAT
-        # 'accept': 'application/vnd.github+json'
     }
 
     # Issue link to be returned for easy human access
@@ -95,34 +101,19 @@ def update_issue(issue, REPO_NAME, REPO_OWNER, PAT, ISSUE_NUMBER):
             'labels': issue[3]
         }
 
-    r = None
-# ****************************************************
-# Use of try and exception handeling provided by GeeksForGeeks at https://www.geeksforgeeks.org/exception-handling-of-python-requests-module/
-    try:
-        r = requests.post(URL, data=json.dumps(data), headers=headers, timeout=5)
-        r.raise_for_status()
-    except requests.exceptions.HTTPError as errh:
-        print("HTTP Error")
-        print(errh.args[0])
-    except requests.exceptions.ReadTimeout as errrt:
-        print("Time out")
-    except requests.exceptions.ConnectionError as conerr:
-        print("Connection error")
-    except requests.exceptions.RequestException as errex:
-        print("Exception request")
-    print("Update Success")
-# ****************************************************
+    r = make_request(URL, data, headers)
 
-    if not r:
-        return issue_link
+    if r is None:
+        return None
 
     if r.ok:
+        print(f"Successfully Updated Issue {ISSUE_NUMBER}")
         issue_link = r.json()["url"]
 
     return issue_link
 
 # Testing
-ISSUE_NUMBER = '25'
+ISSUE_NUMBER = '45'
 print(len(issues.issues_data))
 test_issue = issues.issues_data[4] 
 # link = upload_issue(test_issue, REPO_NAME, REPO_OWNER, PAT)
