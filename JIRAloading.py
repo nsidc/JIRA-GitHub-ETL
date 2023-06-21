@@ -120,6 +120,15 @@ class JIRALoader:
         return checklists
 
 
+    # This function prints the titles of all loaded issues with a number next to it
+    def print_issue_titles(self):
+            self.issue_titles()
+
+            print(f"There are {len(self.titles)} issues.")
+            for i, title in enumerate(self.titles, 1):
+                print(f"{i}: {title}")
+
+
 
     # This function compiles the data from the titles, links, descriptions, labels, and checklists into a zipped array of tuples, where each tuple is all of the data for one issue. A tuple is useful as it makes each issue's data ordered and imutable.
     def get_issue_data(self):

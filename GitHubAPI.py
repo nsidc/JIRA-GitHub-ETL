@@ -103,21 +103,92 @@ def update_issue(issue, REPO_NAME, REPO_OWNER, PAT, ISSUE_NUMBER):
     return issue_link
 
 
-# Testing
-issues = JL.JIRALoader('../testJIRA.xml')
 
-# Getting the issues loaded into the JIRALoader object
-issues.get_issue_data()
+# This is a text-based, user interface to use both the JIRAloader.py and GitHubAPI.py function calls. The user needs to have the location of the JIRA file, the repo owner's name or the organization the repo is in, the name of the repo, and a working PAT key. More information about GitHub PATs can be found here: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+def run():
+    file_name = input('Enter the path to the JIRA .xml file: ')
+    issues = JL.JIRALoader(file_name)
 
-REPO_OWNER = 'iansincolorado'
-REPO_NAME = 'pythonapis'
+    # Getting the issues loaded into the JIRALoader object
+    issues.get_issue_data()
 
-# Only way of authenticating at the current moment is with GitHub PAT tokens, which are deleted from your GitHub account if it is found in a public repository
-PAT = ''
+    # Below is an example repository link:
+    # https://github.com/<repo owner username or organization>/<repo name>
+    REPO_OWNER = input("Enter the repository owner's GitHub username or the organization's GitHub name: ")
 
-ISSUE_NUMBER = '45'
-print(len(issues.issues_data))
-test_issue = issues.issues_data[4] 
-# link = upload_issue(test_issue, REPO_NAME, REPO_OWNER, PAT)
-link = update_issue(test_issue, REPO_NAME, REPO_OWNER, PAT, ISSUE_NUMBER)
-# print(link)
+    REPO_NAME = input("Enter the name of the repository: ")
+
+    # GitHub PAT tokens are how this tool authenticates with the GitHub REST API. Please note that if you are creating an issue, the PAT owner will be the creator of the issue. To create a PAT for GitHub please visit: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+    PAT = input("Enter your PAT token: ")
+
+    create_or_update = True
+    while(create_or_update):
+        print('Enter one of the following choices: ')
+        print('\t- "c" to create an issue from the loaded issues')
+        print('\t- A number to update that issue in the repository')
+        print('\t- "s" to stop updating and creating')
+        choice = input('Enter "c" to create an issue, the issue number in the repository to update an issue, or "s" to stop: ')
+
+        # User wants to create an issue
+        if choice == 'c':
+            print_input = input('Would you like to print all of the currently lodaded issues\' titles? ("y" for yes, anything else for no):')
+
+            if print_input == "y":
+                print("These are the titles of all loaded issues:")
+                issues.print_issue_titles()
+
+            flag = True
+            while(flag):
+                question = input('Enter the issue number to be created. (This issue\'s data will be the data used to create the new issue.) Enter "s" to stop the creation: ')
+                if question == "s":
+                    print("Cancelling issue creation.")
+                    flag = False
+                elif question.isdigit():
+                    # Create the issue
+                    link, number = upload_issue(issues.issues_data[int(question) - 1], REPO_NAME, REPO_OWNER, PAT)
+
+                    if link is None:
+                        print("Issue could not be updated")
+                    else:
+                        print(f"Link to updated issue: {link}")
+
+                    flag = False
+                else:
+                    print('Please enter a number or "n" to cancel')
+
+        elif choice.isdigit():
+            ISSUE_NUMBER = int(choice)
+
+            print_input = input('Would you like to print all of the currently lodaded issues\' titles? ("y" for yes, anything else for no):')
+
+            if print_input == "y":
+                print("These are the titles of all loaded issues:")
+                issues.print_issue_titles()
+
+            flag = True
+            while(flag):
+                question = input('Enter the issue number with the correct issue information. (This issue\'s data will be the replacement data for the provided issue number) Enter "s" to stop the update:')
+
+                if question == "s":
+                    print(f"Cancelling update on issue {issue_num}")
+                    flag = False
+                elif question.isdigit():
+                    # Update the issue
+                    link = update_issue(issues.issues_data[int(question) - 1], REPO_NAME, REPO_OWNER, PAT, ISSUE_NUMBER)
+
+                    if link is None:
+                        print("\nIssue could not be updated")
+                    else:
+                        print(f"\nLink to updated issue: {link}")
+
+                    flag = False
+                else:
+                    print('Please enter a number or "n" to cancel')
+
+        elif choice == "s":
+            print("Stopping requests")
+            create_or_update = False
+        else:
+            print('Please enter "c", a number, or "s"')
+
+run()
