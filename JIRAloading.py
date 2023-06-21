@@ -2,19 +2,7 @@ import bs4
 import requests
 import re
 
-with open('../testJIRA.xml', 'r') as f:
-    file = f.read()
-
-soup = bs4.BeautifulSoup(file, 'xml')
-
-# Getting all of the items, which are individual JIRA issues
-issues = soup.rss.channel.find_all('item')
-# print(type(issues))
-# print(len(issues))
-# print(issues[0])
-
- 
-# This class takes a text file and does all of the beautiful soup logic in a black box so it can just be extracted and put into github.
+# This class takes a text file and does all of the beautiful soup logic in a black box so the JIRA issues can just be extracted and put into GitHub.
 class JIRALoader:
     def __init__(self, filepath):
         self.titles = None
@@ -30,7 +18,7 @@ class JIRALoader:
         self.soup = bs4.BeautifulSoup(file, 'xml')
 
         # Getting all of the items, which are individual JIRA issues
-        self.issues = soup.rss.channel.find_all('item')
+        self.issues = self.soup.rss.channel.find_all('item')
 
 
 
@@ -80,7 +68,7 @@ class JIRALoader:
     # This functions returns a list of labels, where the status is the first label in every list, then the actual labels follow; the return is a list of list of strings
     def issue_labels(self):
         labels = list()
-        for issue in issues:
+        for issue in self.issues:
             issue_labels = list()
 
             # add the status to the labels list first
@@ -102,7 +90,7 @@ class JIRALoader:
     # This function gets the checklists and puts it in the correct form for GitHub checklists
     def issue_checklists(self):
         checklists = list()
-        for issue in issues:
+        for issue in self.issues:
             all_issue_checklists = issue.find_all('checklist')
             issue_checklist = all_issue_checklists[0]
 
@@ -133,7 +121,7 @@ class JIRALoader:
 
 
 
-    # This function compiles the data from the titles, links, descriptions, labels, and checklists into a zipped array of tuples, where each tuple is all of the data for one issue.
+    # This function compiles the data from the titles, links, descriptions, labels, and checklists into a zipped array of tuples, where each tuple is all of the data for one issue. A tuple is useful as it makes each issue's data ordered and imutable.
     def get_issue_data(self):
         self.issue_titles()
         self.issue_links()
@@ -147,12 +135,4 @@ class JIRALoader:
 
         self.issues_data = issues_data
         return issues_data
-
-
-
-# Testing
-test = JIRALoader('../testJIRA.xml')
-issues_data = test.get_issue_data()
-# for issue in issues_data:
-    # print(issue[1])
 

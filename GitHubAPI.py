@@ -3,16 +3,6 @@ import bs4
 import json
 import JIRAloading as JL
 
-issues = JL.JIRALoader('../testJIRA.xml')
-
-# Getting the issues loaded into the JIRALoader object
-issues.get_issue_data()
-
-REPO_OWNER = 'iansincolorado'
-REPO_NAME = 'pythonapis'
-
-# Only way of authenticating at the current moment is with GitHub PAT tokens, which are deleted from your GitHub account if it is found in a public repository
-PAT = ''
 
 def make_request(URL, data, headers):
 # ****************************************************
@@ -112,10 +102,22 @@ def update_issue(issue, REPO_NAME, REPO_OWNER, PAT, ISSUE_NUMBER):
 
     return issue_link
 
+
 # Testing
+issues = JL.JIRALoader('../testJIRA.xml')
+
+# Getting the issues loaded into the JIRALoader object
+issues.get_issue_data()
+
+REPO_OWNER = 'iansincolorado'
+REPO_NAME = 'pythonapis'
+
+# Only way of authenticating at the current moment is with GitHub PAT tokens, which are deleted from your GitHub account if it is found in a public repository
+PAT = ''
+
 ISSUE_NUMBER = '45'
 print(len(issues.issues_data))
 test_issue = issues.issues_data[4] 
 # link = upload_issue(test_issue, REPO_NAME, REPO_OWNER, PAT)
-# link = update_issue(test_issue, REPO_NAME, REPO_OWNER, PAT, ISSUE_NUMBER)
+link = update_issue(test_issue, REPO_NAME, REPO_OWNER, PAT, ISSUE_NUMBER)
 # print(link)
