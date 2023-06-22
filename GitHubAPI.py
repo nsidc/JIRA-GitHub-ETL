@@ -175,18 +175,19 @@ def run():
 
     create_or_update = True
     while(create_or_update):
-        print('Enter one of the following choices: ')
+        print('------------------------Menu--------------------------')
         print('\t- "c" to create an issue from the loaded issues')
         print('\t- A number to update that issue in the repository')
         print('\t- "s" to stop updating and creating')
-        choice = input('')
+        print()
+        choice = input('Enter an option from the above menu: ')
 
         # User wants to create an issue
         if choice == 'c':
-            print_input = input('Would you like to print all of the currently lodaded issues\' titles? ("y" for yes, anything else for no):')
+            print_input = input('Would you like to print all of the currently lodaded issues\' titles? ("y" for yes, anything else for no): ')
 
             if print_input == "y":
-                print("These are the titles of all loaded issues:")
+                print("These are the titles of all loaded issues: ")
                 issues.print_issue_titles()
 
             flag = True
@@ -211,15 +212,15 @@ def run():
         elif choice.isdigit():
             ISSUE_NUMBER = int(choice)
 
-            print_input = input('Would you like to print all of the currently lodaded issues\' titles? ("y" for yes, anything else for no):')
+            print_input = input('Would you like to print all of the currently lodaded issues\' titles? ("y" for yes, anything else for no): ')
 
             if print_input == "y":
-                print("These are the titles of all loaded issues:")
+                print("These are the titles of all loaded issues: ")
                 issues.print_issue_titles()
 
             flag = True
             while(flag):
-                question = input('Enter the issue number with the correct issue information. (This issue\'s data will be the replacement data for the provided issue number.) Enter "s" to stop the update:')
+                question = input('Enter the issue number with the correct issue information. (This issue\'s data will be the replacement data for the provided issue number.) Enter "s" to stop the update: ')
 
                 if question == "s":
                     print(f"Cancelling update on issue {issue_num}\n")
