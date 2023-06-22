@@ -30,7 +30,7 @@ def make_request(URL, data, headers):
 
 # This function uploads an issue's data to github at the provided repo name, owner, and PAT. (The GitHub PAT user needs to have edit access on the repository.) 
 # It will return the new issue's link and number as a tuple: (link, number). If the issue could not be created, then (None, None) is returned instead
-def upload_issue(issue, REPO_NAME, REPO_OWNER, PAT):
+def create_issue(issue, REPO_NAME, REPO_OWNER, PAT):
     URL = f'https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/issues'
     headers = {
         'Authorization': 'token ' + PAT
@@ -145,7 +145,7 @@ def run():
                     flag = False
                 elif question.isdigit():
                     # Create the issue
-                    link, number = upload_issue(issues.issues_data[int(question) - 1], REPO_NAME, REPO_OWNER, PAT)
+                    link, number = create_issue(issues.issues_data[int(question) - 1], REPO_NAME, REPO_OWNER, PAT)
 
                     if link is None:
                         print("Issue could not be updated")
