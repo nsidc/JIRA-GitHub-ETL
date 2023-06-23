@@ -55,6 +55,16 @@ def create_issue(issue, REPO_NAME, REPO_OWNER, PAT, USERNAMES):
     else:
         body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n\n" + issue[2]
 
+    # Add comments if there are any
+    if issue[7] is not None:
+        body += "\nJIRA Comments:\n" 
+        for comment in issue[7]:
+            if comment[0] in USERNAMES.keys():
+                body += f"{USERNAMES[comment[0]]} added a comment on {comment[1][:-6]}\n {comment[2]}\n"
+            else:
+                print(f"{comment[0]} is not in JGUsernames.py")
+                body += f"{comment[0]} (JIRA username) added a comment on {comment[1][:-6]}\n {comment[2]}\n"
+
     # Testing for assignee and assigning one if possible
     if issue[6] == "-1":
         # No assignee
@@ -114,6 +124,16 @@ def update_issue(issue, REPO_NAME, REPO_OWNER, PAT, USERNAMES, ISSUE_NUMBER):
         body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n\n" + issue[2] + "\nChecklist:\n" + issue[4]
     else:
         body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n\n" + issue[2]
+
+    # Add comments if there are any
+    if issue[7] is not None:
+        body += "\nJIRA Comments:\n" 
+        for comment in issue[7]:
+            if comment[0] in USERNAMES.keys():
+                body += f"{USERNAMES[comment[0]]} added a comment on {comment[1][:-6]}\n {comment[2]}\n"
+            else:
+                print(f"{comment[0]} is not in JGUsernames.py")
+                body += f"{comment[0]} (JIRA username) added a comment on {comment[1][:-6]}\n {comment[2]}\n"
 
     # Testing for assignee and assigning one if possible
     if issue[6] == "-1":

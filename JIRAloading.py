@@ -14,6 +14,7 @@ class JIRALoader:
         self.checklists = None
         self.reporters = None
         self.assignees = None
+        self.comments = None
         
         self.usernames = None
         self.issues_data = None
@@ -150,6 +151,34 @@ class JIRALoader:
 
         self.assignees = assignees
         return assignees
+    
+    
+
+    def issue_comments(self):
+        comments = list()
+        for issue in self.issues:
+            comments_tag = issue.find('comments')
+
+            if comments_tag is not None:
+                # Have each comment be a tuple of the author, date created, and the contents; tuples are useful because they are ordered, so it makes for easy data access
+                comment_tuples = list()
+
+                comment_tags = comments_tag.find_all('comment')
+                for comment in comment_tags:
+                    author = comment['author']
+                    created = comment['created']
+                    comment_tuple = (author, created, comment.text)
+                    comment_tuples.append(comment_tuple)
+
+                comments.append(comment_tuples)
+            else:
+                # No Comments in this JIRA issue
+                no_comments = None
+                comments.append(no_comments)
+
+        self.comments = comments
+        return comments
+
 
 
 
@@ -183,12 +212,12 @@ class JIRALoader:
         self.issue_checklists()
         self.issue_reporters()
         self.issue_assignees()
+        self.issue_comments()
 
         # Issue Data Structure: (title, link, description, labels, checklist, reporter, assignee, comments)
         issues_data = list()
-        for zipped in zip(self.titles, self.links, self.descriptions, self.labels, self.checklists, self.reporters, self.assignees):
+        for zipped in zip(self.titles, self.links, self.descriptions, self.labels, self.checklists, self.reporters, self.assignees, self.comments):
             issues_data.append(zipped)
 
         self.issues_data = issues_data
         return issues_data
-
