@@ -30,8 +30,9 @@ def make_request(URL, data, headers):
 
 # This function uploads an issue's data to github at the provided repo name, owner, and PAT. (The GitHub PAT user needs to have edit access on the repository.) 
 # It will return the new issue's link and number as a tuple: (link, number). If the issue could not be created, then (None, None) is returned instead
-def create_issue(issue, REPO_NAME, REPO_OWNER, PAT):
+def create_issue(issue, REPO_NAME, REPO_OWNER, PAT, USERNAMES):
     URL = f'https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/issues'
+
     headers = {
         'Authorization': 'token ' + PAT
     }
@@ -42,17 +43,50 @@ def create_issue(issue, REPO_NAME, REPO_OWNER, PAT):
     # Issue number to be returned for possible updates to an issue
     issue_number = None 
 
+    # Getting correct form of username, depending on what data is avilable
+    if issue[5] not in USERNAMES.keys():
+        reporter = issue[5] + ' (JIRA username)'
+    else:
+        reporter = USERNAMES[issue[5]]
+
+    # Adding a checklist if there is one
     if issue[4] is not None:
+        body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n\n" + issue[2] + "\nChecklist:\n" + issue[4]
+    else:
+        body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n\n" + issue[2]
+
+    # Add comments if there are any
+    if issue[7] is not None:
+        body += "\nJIRA Comments:\n" 
+        for comment in issue[7]:
+            if comment[0] in USERNAMES.keys():
+                body += f"{USERNAMES[comment[0]]} added a comment on {comment[1][:-6]}\n {comment[2]}\n"
+            else:
+                print(f"{comment[0]} is not in JGUsernames.py")
+                body += f"{comment[0]} (JIRA username) added a comment on {comment[1][:-6]}\n {comment[2]}\n"
+
+    # Testing for assignee and assigning one if possible
+    if issue[6] == "-1":
+        # No assignee
         data = {
             'title': issue[0],
-            'body': "JIRA Issue: " + issue[1] + "\n\n" + issue[2] + "\nChecklist:\n" + issue[4],
+            'body': body,
+            'labels': issue[3]
+        }
+    elif issue[6] not in USERNAMES.keys():
+        print('*****Notice*****')
+        print(f"Assignee with JIRA username {issue[6]} was not found in JGUsernames.json. There will be no assignee on this GitHub issue.")
+        data = {
+            'title': issue[0],
+            'body': body,
             'labels': issue[3]
         }
     else:
         data = {
             'title': issue[0],
-            'body': "JIRA Issue: " + issue[1] + "\n\n" + issue[2], 
-            'labels': issue[3]
+            'body': body,
+            'labels': issue[3],
+            'assignees': USERNAMES[issue[6]]
         }
 
     r = make_request(URL, data, headers)
@@ -63,14 +97,15 @@ def create_issue(issue, REPO_NAME, REPO_OWNER, PAT):
     if r.ok:
         issue_link = r.json()["url"]
         issue_number = r.json()["number"]
-        print(f"Successfully Created Issue {issue_number}")
+        print(f"Successfully Created Issue {issue_number}\n")
 
     return (issue_link, issue_number)
 
 # This function updates a GitHub issue to the provided issue data at the provided repo name, repo owner, issue number, and PAT. (The GitHub PAT user needs to have edit access on the repository.) 
 # It will return the issue's link. If the issue could not be updated, then None is returned instead.
-def update_issue(issue, REPO_NAME, REPO_OWNER, PAT, ISSUE_NUMBER):
+def update_issue(issue, REPO_NAME, REPO_OWNER, PAT, USERNAMES, ISSUE_NUMBER):
     URL = f'https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/issues/{ISSUE_NUMBER}'
+
     headers = {
         'Authorization': 'token ' + PAT
     }
@@ -78,18 +113,52 @@ def update_issue(issue, REPO_NAME, REPO_OWNER, PAT, ISSUE_NUMBER):
     # Issue link to be returned for easy human access
     issue_link = None
 
+    # Getting correct form of username, depending on what data is avilable
+    if issue[5] not in USERNAMES.keys():
+        reporter = issue[5] + ' (JIRA username)'
+    else:
+        reporter = USERNAMES[issue[5]]
+
+    # Adding a checklist if there is one
     if issue[4] is not None:
+        body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n\n" + issue[2] + "\nChecklist:\n" + issue[4]
+    else:
+        body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n\n" + issue[2]
+
+    # Add comments if there are any
+    if issue[7] is not None:
+        body += "\nJIRA Comments:\n" 
+        for comment in issue[7]:
+            if comment[0] in USERNAMES.keys():
+                body += f"{USERNAMES[comment[0]]} added a comment on {comment[1][:-6]}\n {comment[2]}\n"
+            else:
+                print(f"{comment[0]} is not in JGUsernames.py")
+                body += f"{comment[0]} (JIRA username) added a comment on {comment[1][:-6]}\n {comment[2]}\n"
+
+    # Testing for assignee and assigning one if possible
+    if issue[6] == "-1":
+        # No assignee
         data = {
             'title': issue[0],
-            'body': "JIRA Issue: " + issue[1] + "\n\n" + issue[2] + "\nChecklist:\n" + issue[4],
+            'body': body,
+            'labels': issue[3]
+        }
+    elif issue[6] not in USERNAMES.keys():
+        print('*****Notice*****')
+        print(f"Assignee with JIRA username {issue[6]} was not found in JGUsernames.json. There will be no assignee on this GitHub issue.")
+        data = {
+            'title': issue[0],
+            'body': body,
             'labels': issue[3]
         }
     else:
         data = {
             'title': issue[0],
-            'body': "JIRA Issue: " + issue[1] + "\n\n" + issue[2], 
-            'labels': issue[3]
+            'body': body,
+            'labels': issue[3],
+            'assignees': USERNAMES[issue[6]]
         }
+    
 
     r = make_request(URL, data, headers)
 
@@ -112,6 +181,9 @@ def run():
     # Getting the issues loaded into the JIRALoader object
     issues.get_issue_data()
 
+    # Load usernames
+    USERNAMES = issues.load_usernames()
+
     # Below is an example repository link:
     # https://github.com/<repo owner username or organization>/<repo name>
     REPO_OWNER = input("Enter the repository owner's GitHub username or the organization's GitHub name: ")
@@ -123,34 +195,35 @@ def run():
 
     create_or_update = True
     while(create_or_update):
-        print('Enter one of the following choices: ')
+        print('------------------------Menu--------------------------')
         print('\t- "c" to create an issue from the loaded issues')
         print('\t- A number to update that issue in the repository')
         print('\t- "s" to stop updating and creating')
-        choice = input('Enter "c" to create an issue, the issue number in the repository to update an issue, or "s" to stop: ')
+        print()
+        choice = input('Enter an option from the above menu: ')
 
         # User wants to create an issue
         if choice == 'c':
-            print_input = input('Would you like to print all of the currently lodaded issues\' titles? ("y" for yes, anything else for no):')
+            print_input = input('Would you like to print all of the currently lodaded issues\' titles? ("y" for yes, anything else for no): ')
 
             if print_input == "y":
-                print("These are the titles of all loaded issues:")
+                print("These are the titles of all loaded issues: ")
                 issues.print_issue_titles()
 
             flag = True
             while(flag):
                 question = input('Enter the issue number to be created. (This issue\'s data will be the data used to create the new issue.) Enter "s" to stop the creation: ')
                 if question == "s":
-                    print("Cancelling issue creation.")
+                    print("\nCancelling issue creation.\n")
                     flag = False
                 elif question.isdigit():
                     # Create the issue
-                    link, number = create_issue(issues.issues_data[int(question) - 1], REPO_NAME, REPO_OWNER, PAT)
+                    link, number = create_issue(issues.issues_data[int(question) - 1], REPO_NAME, REPO_OWNER, PAT, USERNAMES)
 
                     if link is None:
-                        print("Issue could not be updated")
+                        print("\nIssue could not be updated\n")
                     else:
-                        print(f"Link to updated issue: {link}")
+                        print(f"\nLink to new issue: {link}\n")
 
                     flag = False
                 else:
@@ -159,34 +232,34 @@ def run():
         elif choice.isdigit():
             ISSUE_NUMBER = int(choice)
 
-            print_input = input('Would you like to print all of the currently lodaded issues\' titles? ("y" for yes, anything else for no):')
+            print_input = input('Would you like to print all of the currently lodaded issues\' titles? ("y" for yes, anything else for no): ')
 
             if print_input == "y":
-                print("These are the titles of all loaded issues:")
+                print("These are the titles of all loaded issues: ")
                 issues.print_issue_titles()
 
             flag = True
             while(flag):
-                question = input('Enter the issue number with the correct issue information. (This issue\'s data will be the replacement data for the provided issue number) Enter "s" to stop the update:')
+                question = input('Enter the issue number with the correct issue information. (This issue\'s data will be the replacement data for the provided issue number.) Enter "s" to stop the update: ')
 
                 if question == "s":
-                    print(f"Cancelling update on issue {issue_num}")
+                    print(f"Cancelling update on issue {issue_num}\n")
                     flag = False
                 elif question.isdigit():
                     # Update the issue
-                    link = update_issue(issues.issues_data[int(question) - 1], REPO_NAME, REPO_OWNER, PAT, ISSUE_NUMBER)
+                    link = update_issue(issues.issues_data[int(question) - 1], REPO_NAME, REPO_OWNER, PAT, USERNAMES, ISSUE_NUMBER)
 
                     if link is None:
-                        print("\nIssue could not be updated")
+                        print("\nIssue could not be updated\n")
                     else:
-                        print(f"\nLink to updated issue: {link}")
+                        print(f"\nLink to updated issue: {link}\n")
 
                     flag = False
                 else:
                     print('Please enter a number or "n" to cancel')
 
         elif choice == "s":
-            print("Stopping requests")
+            print("Stopping Program")
             create_or_update = False
         else:
             print('Please enter "c", a number, or "s"')

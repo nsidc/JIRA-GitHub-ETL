@@ -1,16 +1,23 @@
 import bs4
 import requests
 import re
+import json
 
 # This class takes a text file and does all of the beautiful soup logic in a black box so the JIRA issues can just be extracted and put into GitHub.
 class JIRALoader:
     def __init__(self, filepath):
+        # All data fields that have migration
         self.titles = None
         self.links = None
         self.descriptions = None
         self.labels = None
-        self.issues_data = None
         self.checklists = None
+        self.reporters = None
+        self.assignees = None
+        self.comments = None
+        
+        self.usernames = None
+        self.issues_data = None
 
         with open(filepath, 'r') as f:
             file = f.read()
@@ -120,6 +127,72 @@ class JIRALoader:
         return checklists
 
 
+
+    # This function extracts the reporter's username from each JIRA issue
+    def issue_reporters(self):
+        reporters = list()
+        for issue in self.issues:
+            reporter_tag = issue.find('reporter')
+            username = reporter_tag["username"]
+            reporters.append(username)
+        
+        self.reporters = reporters
+        return reporters
+
+
+
+    # This function extracts the assignee's username from each JIRA issue, whcih will be '-1' if there is no assignee
+    def issue_assignees(self):
+        assignees = list()
+        for issue in self.issues:
+            assignee_tag = issue.find('assignee')
+            username = assignee_tag["username"]
+            assignees.append(username)
+
+        self.assignees = assignees
+        return assignees
+    
+    
+
+    def issue_comments(self):
+        comments = list()
+        for issue in self.issues:
+            comments_tag = issue.find('comments')
+
+            if comments_tag is not None:
+                # Have each comment be a tuple of the author, date created, and the contents; tuples are useful because they are ordered, so it makes for easy data access
+                comment_tuples = list()
+
+                comment_tags = comments_tag.find_all('comment')
+                for comment in comment_tags:
+                    author = comment['author']
+                    created = comment['created']
+                    comment_tuple = (author, created, comment.text)
+                    comment_tuples.append(comment_tuple)
+
+                comments.append(comment_tuples)
+            else:
+                # No Comments in this JIRA issue
+                no_comments = None
+                comments.append(no_comments)
+
+        self.comments = comments
+        return comments
+
+
+
+
+    # This function loads the JIRA-GitHub username pairs from JGUsernames.json and both stores it in the object and returns it
+    def load_usernames(self):
+        f = open('./JGUsernames.json')
+        usernames = json.load(f)
+        f.close()
+
+        self.usernames = usernames
+        return usernames
+
+
+
     # This function prints the titles of all loaded issues with a number next to it
     def print_issue_titles(self):
             self.issue_titles()
@@ -137,11 +210,14 @@ class JIRALoader:
         self.issue_descriptions()
         self.issue_labels()
         self.issue_checklists()
+        self.issue_reporters()
+        self.issue_assignees()
+        self.issue_comments()
 
+        # Issue Data Structure: (title, link, description, labels, checklist, reporter, assignee, comments)
         issues_data = list()
-        for zipped in zip(self.titles, self.links, self.descriptions, self.labels, self.checklists):
+        for zipped in zip(self.titles, self.links, self.descriptions, self.labels, self.checklists, self.reporters, self.assignees, self.comments):
             issues_data.append(zipped)
 
         self.issues_data = issues_data
         return issues_data
-
