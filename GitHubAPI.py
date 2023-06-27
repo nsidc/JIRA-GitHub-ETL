@@ -28,6 +28,60 @@ def make_request(URL, data, headers):
     return r
 
 
+
+def load_issue_data(issue, USERNAMES):
+    body = None
+    data = None
+    # Getting correct form of username, depending on what data is avilable
+    if issue[5] not in USERNAMES.keys():
+        reporter = issue[5] + ' (JIRA username)'
+    else:
+        reporter = USERNAMES[issue[5]]
+
+    # Adding a checklist if there is one
+    if issue[4] is not None:
+        body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n\n" + issue[2] + "\nChecklist:\n" + issue[4]
+    else:
+        body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n\n" + issue[2]
+
+    # Add comments if there are any
+    if issue[7] is not None:
+        body += "\nJIRA Comments:\n" 
+        for comment in issue[7]:
+            if comment[0] in USERNAMES.keys():
+                body += f"{USERNAMES[comment[0]]} added a comment on {comment[1][:-6]}\n {comment[2]}\n"
+            else:
+                print(f"{comment[0]} is not in JGUsernames.py")
+                body += f"{comment[0]} (JIRA username) added a comment on {comment[1][:-6]}\n {comment[2]}\n"
+
+    # Testing for assignee and assigning one if possible
+    if issue[6] == "-1":
+        # No assignee
+        data = {
+            'title': issue[0],
+            'body': body,
+            'labels': issue[3]
+        }
+    elif issue[6] not in USERNAMES.keys():
+        print('*****Notice*****')
+        print(f"Assignee with JIRA username {issue[6]} was not found in JGUsernames.json. There will be no assignee on this GitHub issue.")
+        data = {
+            'title': issue[0],
+            'body': body,
+            'labels': issue[3]
+        }
+    else:
+        data = {
+            'title': issue[0],
+            'body': body,
+            'labels': issue[3],
+            'assignees': USERNAMES[issue[6]]
+        }
+
+    return data
+
+
+
 # This function uploads an issue's data to github at the provided repo name, owner, and PAT. (The GitHub PAT user needs to have edit access on the repository.) 
 # It will return the new issue's link and number as a tuple: (link, number). If the issue could not be created, then (None, None) is returned instead
 def create_issue(issue, REPO_NAME, REPO_OWNER, PAT, USERNAMES):
@@ -43,51 +97,8 @@ def create_issue(issue, REPO_NAME, REPO_OWNER, PAT, USERNAMES):
     # Issue number to be returned for possible updates to an issue
     issue_number = None 
 
-    # Getting correct form of username, depending on what data is avilable
-    if issue[5] not in USERNAMES.keys():
-        reporter = issue[5] + ' (JIRA username)'
-    else:
-        reporter = USERNAMES[issue[5]]
-
-    # Adding a checklist if there is one
-    if issue[4] is not None:
-        body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n\n" + issue[2] + "\nChecklist:\n" + issue[4]
-    else:
-        body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n\n" + issue[2]
-
-    # Add comments if there are any
-    if issue[7] is not None:
-        body += "\nJIRA Comments:\n" 
-        for comment in issue[7]:
-            if comment[0] in USERNAMES.keys():
-                body += f"{USERNAMES[comment[0]]} added a comment on {comment[1][:-6]}\n {comment[2]}\n"
-            else:
-                print(f"{comment[0]} is not in JGUsernames.py")
-                body += f"{comment[0]} (JIRA username) added a comment on {comment[1][:-6]}\n {comment[2]}\n"
-
-    # Testing for assignee and assigning one if possible
-    if issue[6] == "-1":
-        # No assignee
-        data = {
-            'title': issue[0],
-            'body': body,
-            'labels': issue[3]
-        }
-    elif issue[6] not in USERNAMES.keys():
-        print('*****Notice*****')
-        print(f"Assignee with JIRA username {issue[6]} was not found in JGUsernames.json. There will be no assignee on this GitHub issue.")
-        data = {
-            'title': issue[0],
-            'body': body,
-            'labels': issue[3]
-        }
-    else:
-        data = {
-            'title': issue[0],
-            'body': body,
-            'labels': issue[3],
-            'assignees': USERNAMES[issue[6]]
-        }
+    # Load the data of the issue
+    data = load_issue_data(issue, USERNAMES)
 
     r = make_request(URL, data, headers)
 
@@ -101,6 +112,8 @@ def create_issue(issue, REPO_NAME, REPO_OWNER, PAT, USERNAMES):
 
     return (issue_link, issue_number)
 
+
+
 # This function updates a GitHub issue to the provided issue data at the provided repo name, repo owner, issue number, and PAT. (The GitHub PAT user needs to have edit access on the repository.) 
 # It will return the issue's link. If the issue could not be updated, then None is returned instead.
 def update_issue(issue, REPO_NAME, REPO_OWNER, PAT, USERNAMES, ISSUE_NUMBER):
@@ -113,52 +126,8 @@ def update_issue(issue, REPO_NAME, REPO_OWNER, PAT, USERNAMES, ISSUE_NUMBER):
     # Issue link to be returned for easy human access
     issue_link = None
 
-    # Getting correct form of username, depending on what data is avilable
-    if issue[5] not in USERNAMES.keys():
-        reporter = issue[5] + ' (JIRA username)'
-    else:
-        reporter = USERNAMES[issue[5]]
-
-    # Adding a checklist if there is one
-    if issue[4] is not None:
-        body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n\n" + issue[2] + "\nChecklist:\n" + issue[4]
-    else:
-        body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n\n" + issue[2]
-
-    # Add comments if there are any
-    if issue[7] is not None:
-        body += "\nJIRA Comments:\n" 
-        for comment in issue[7]:
-            if comment[0] in USERNAMES.keys():
-                body += f"{USERNAMES[comment[0]]} added a comment on {comment[1][:-6]}\n {comment[2]}\n"
-            else:
-                print(f"{comment[0]} is not in JGUsernames.py")
-                body += f"{comment[0]} (JIRA username) added a comment on {comment[1][:-6]}\n {comment[2]}\n"
-
-    # Testing for assignee and assigning one if possible
-    if issue[6] == "-1":
-        # No assignee
-        data = {
-            'title': issue[0],
-            'body': body,
-            'labels': issue[3]
-        }
-    elif issue[6] not in USERNAMES.keys():
-        print('*****Notice*****')
-        print(f"Assignee with JIRA username {issue[6]} was not found in JGUsernames.json. There will be no assignee on this GitHub issue.")
-        data = {
-            'title': issue[0],
-            'body': body,
-            'labels': issue[3]
-        }
-    else:
-        data = {
-            'title': issue[0],
-            'body': body,
-            'labels': issue[3],
-            'assignees': USERNAMES[issue[6]]
-        }
-    
+    # Load the data of the issue
+    data = load_issue_data(issue, USERNAMES)
 
     r = make_request(URL, data, headers)
 
