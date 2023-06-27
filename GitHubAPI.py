@@ -84,7 +84,7 @@ def load_issue_data(issue, USERNAMES):
             'title': issue[0],
             'body': body,
             'labels': issue[3],
-            'assignees': USERNAMES[issue[6]]
+            'assignees': [USERNAMES[issue[6]]]
         }
 
     return data
