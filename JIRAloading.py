@@ -108,6 +108,7 @@ class JIRALoader:
 
             checklist = ''
             if title.text != "Empty":
+                checklist += '\n'
                 all_divs = checklist_soup.find_all('div')
 
                 # Need to do this weird thing with range to ignore the first 5 divs (both <div> and </div>) and only every other div from then on because the nested divs are all listed out
@@ -116,7 +117,7 @@ class JIRALoader:
 
                     # Removing whitespace, leaving only text
                     text = full_box[56:-24]
-                    check_box = '- [ ] ' + text
+                    check_box = ' - [ ] ' + text
                     checklist += check_box
             else:
                 checklist = None

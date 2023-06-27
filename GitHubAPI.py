@@ -33,26 +33,35 @@ def load_issue_data(issue, USERNAMES):
     body = None
     data = None
     # Getting correct form of username, depending on what data is avilable
-    if issue[5] not in USERNAMES.keys():
+    if issue[5] not in list(USERNAMES.keys()):
         reporter = issue[5] + ' (JIRA username)'
     else:
         reporter = USERNAMES[issue[5]]
 
     # Adding a checklist if there is one
     if issue[4] is not None:
-        body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n\n" + issue[2] + "\nChecklist:\n" + issue[4]
+        body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n *** \n" + issue[2]
+        body += "\n## Checklist:" + issue[4]
     else:
-        body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n\n" + issue[2]
+        body = "JIRA Issue: " + issue[1] + "\nOriginal Reporter: " + reporter + "\n *** \n" + issue[2]
 
     # Add comments if there are any
     if issue[7] is not None:
-        body += "\nJIRA Comments:\n" 
-        for comment in issue[7]:
-            if comment[0] in USERNAMES.keys():
-                body += f"{USERNAMES[comment[0]]} added a comment on {comment[1][:-6]}\n {comment[2]}\n"
+        body += "\n## JIRA Comments:\n" 
+        for i, comment in enumerate(issue[7]):
+            author_username = ''
+            if comment[0] in list(USERNAMES.keys()):
+                author_username = USERNAMES[comment[0]]
             else:
-                print(f"{comment[0]} is not in JGUsernames.py")
-                body += f"{comment[0]} (JIRA username) added a comment on {comment[1][:-6]}\n {comment[2]}\n"
+                print(f"{comment[0]} is not in JGUsernames.json")
+                author_username = comment[0] + " (JIRA username)"
+
+            # Checking for final line to properly print without left over whitespace
+            if i == (len(issue[7]) - 1):
+                body += f" ### {author_username} added a comment on {comment[1][:-6]}\n {comment[2]}"
+            else:
+                body += f" ### {author_username} added a comment on {comment[1][:-6]}\n {comment[2]}\n\n"
+
 
     # Testing for assignee and assigning one if possible
     if issue[6] == "-1":
