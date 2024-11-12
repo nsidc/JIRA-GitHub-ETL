@@ -5,15 +5,8 @@
 
 # Converting JIRA Tickets to GitHub Issues
 
-This software will allow JIRA and Github user to convert JIRA tickets to Github issues while maintaing as many features as possible. Currently, the tool transfers the JIRA title, description, checklist, labels, and status.
+This software allows to transfer JIRA tickets to Github. It takes JIRA xml-exports and creates tickets in a github project.
 
-## Level of Support
-
-* This repository is fully supported by NSIDC. If you discover any problems or bugs,
-  please submit an Issue. If you would like to contribute to this repository, you may fork
-  the repository and submit a pull request. 
-* This repository is not actively supported by NSIDC but we welcome issue submissions and
-  pull requests in order to foster community contribution.
 
 See the [LICENSE](LICENSE) for details on permissions and warranties. Please contact
 nsidc@nsidc.org for more information.
@@ -25,7 +18,6 @@ nsidc@nsidc.org for more information.
 * Access to GitHub repository
 * Python installed locally
 * Anaconda and Conda installed locally
-
 
 ## Conda Environment Setup
 
@@ -47,10 +39,57 @@ This section will serve as a guide to set up the proper conda environment with t
 
 ## Usage
 
-**Important Note:**  
-Before using this tool, be sure to edit the JGUsernames.json file to include your JIRA and GitHub username in the format `"<JIRA username>": "<GitHub username>"`
+The toolset includes currently two tools. The first creates the tickets on GitHub the second transfers the comments for these tickets.
 
-This tool is made to run on the command line. The user needs to input four variables to get started: a path to a JIRA issues .xml file, the organization or repository owner username, the name of the repository, and a Personal Access Token (PAT).
+Before a transfer can be started three files must be created.
+
+### comment-replacement.json
+
+In some Jira tickets handles for users are stored that must be translated to proper Jira usernames.
+This JSON file maps these handles to Jira usernames.
+
+- Jira Handle = user handle that appear in comments and descriptions
+- Jira Username = the username in Jira
+
+```
+{
+"<Jira Handle>":"<Jira Username>",
+```
+
+### j2gh-map.json
+
+Map Jira usernames to github username.
+
+- Jira Username = the username in Jira 
+- GitHub Username = the username/login on GitHub
+
+```
+{
+"<Jira Username>":"<GitHub Username>",
+}
+```
+
+### jira-ids.json
+
+Comments are assigned to users based on their internel Jira Id. To map the Id to usernames, we need a third table.
+To obtain the Ids, you have to open the profil page of every user in the project and copy it from the URL.
+
+They look like:
+```
+557058:080be6cf-a897-4989-8463-24136f2fd123
+```
+
+```
+{
+"<Jira Id>":"<Jira Username>",
+}
+```
+
+These tools are made to run on the command line. The user needs to input four variables to get started:
+- a path to a JIRA issues .xml file, 
+- the organization or repository owner username, 
+- the name of the repository, 
+- and a Personal Access Token (PAT).
 
 ### [Personal Access Tokens (PATs)](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens): 
 
@@ -75,11 +114,13 @@ Depending on the use case of the tool, these are the permissions needed for the 
 1. Open a terminal
 2. Verify you have [python installed](https://www.python.org/downloads/): run `python --version`. If a version number is returned, you have python installed.
 3. Path to where this repository is cloned
-4. Run `python GitHubAPI.py`
-5. Follow the prompts
-
+4. Run `python transfer.py -i XML-file -u ORG-OR-USERNAME -r REPOSITORY -t TOKEN [-k TICKET]`
+   In case the transfer is interrupted by GitHub for too many requests, the process can be restarted after some time. To not transfer all tickets again, the -k option
+   allows to skip over all tickets that have already been transferred, i.e., the ticket of the failed transfer must be specified here. 
+5. Run `python update-tickets.py -i XML-file -u ORG-OR-USERNAME -r REPOSITORY -t TOKEN [-k TICKET]`
+   Transfers comments to imported tickets.
 
 ## Credit
 
-This content was developed by the National Snow and Ice Data Center with funding from
-multiple sources.
+- The original content was developed by the National Snow and Ice Data Center with funding from multiple sources.
+- It has been extended and refitted to be able to copy comments and other elements.
